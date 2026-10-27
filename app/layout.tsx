@@ -28,7 +28,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <header className="border-b border-neutral-200 dark:border-neutral-800">
           <nav className="max-w-2xl mx-auto px-6 py-4 flex items-center justify-between">
             <Link href="/" className="font-semibold">
-              Damien Mathieu
+              Home
             </Link>
             <Link href="/blog" className="text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100">
               Blog
