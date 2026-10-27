@@ -1,0 +1,53 @@
+---
+title: "Building finExtract, turning filings into clean spreadsheets"
+date: "2026-10-24"
+summary: "Pulling XBRL financial statements out of SEC and EDINET filings and normalizing them into clean CSV/Excel."
+tags: ["python", "fastapi", "nextjs", "finextract"]
+---
+
+[finExtract](https://github.com/damien-mathieu1/finExtract) pulls financial
+statements out of official company filings — SEC EDGAR for the US, EDINET
+for Japan — via their XBRL/iXBRL data, normalizes them across US GAAP,
+Japanese GAAP, and IFRS into a common schema, and exports clean CSV/Excel.
+No more copying numbers out of a PDF by hand.
+
+## Pipeline
+
+1. **Extract** — fetch a filing's raw XBRL facts, from SEC EDGAR, EDINET, or
+   a user-uploaded XBRL file.
+2. **Map** — translate filer-specific tags (`us-gaap:Revenues`,
+   `jppfs_cor:NetSales`, ...) into a standard field set (`revenue`,
+   `net_income`, ...) via a static tag lookup table.
+3. **Export** — serve the normalized statement as JSON, a Bloomberg-style
+   styled CSV/Excel workbook (optional chart sheet), or persist it to
+   Postgres as extraction history.
+
+## Architecture
+
+FastAPI backend, Next.js frontend, Clerk for auth, Postgres for extraction
+history. The backend is organized as DDD bounded contexts with hexagonal
+(ports & adapters) boundaries inside one service:
+
+```
+src/finextract/
+├── shared_kernel/    # cross-context value objects (Currency, FiscalPeriod, ReportingStandard)
+├── extraction/       # get raw XBRL facts from a filing
+├── mapping/          # normalize raw facts into the standard schema
+├── export/           # write the standard schema to CSV/Excel/Postgres
+└── interfaces/http/  # FastAPI routes
+```
+
+Each context is `domain/` (entities + ports, no framework imports) →
+`application/` (use cases) → `infrastructure/` (adapters: the XBRL parser,
+the tag map, the CSV/Excel/Postgres writers). Infrastructure depends on
+domain ports, never the other way — so any context could become its own
+service later without touching the domain logic.
+
+## Why hexagonal, here specifically
+
+Two very different data sources (SEC EDGAR's XBRL vs. EDINET's iXBRL) and
+three accounting standards all have to land on the same `revenue` /
+`net_income` / ... fields. Keeping the mapping logic behind a port, with the
+parsing quirks of each source isolated in its own adapter, means adding a
+new filer or standard is a new adapter — not a rewrite of the mapping or
+export code.

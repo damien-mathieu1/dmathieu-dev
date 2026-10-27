@@ -1,0 +1,41 @@
+---
+title: "Building monkeyread, a speed reader that feels like monkeytype"
+date: "2026-10-22"
+summary: "An RSVP speed reader with monkeytype's look and feel, texts and books kept in your browser."
+tags: ["typescript", "nextjs", "monkeyread"]
+---
+
+[monkeyread](https://github.com/damien-mathieu1/monkeyread)
+([monkeyread.eu](https://monkeyread.eu)) is a free RSVP speed reader with
+the look and feel of [monkeytype](https://monkeytype.com). Words appear one
+at a time in the same spot, with a highlighted pivot letter your eye lands
+on, and the whole UX — layout, config bar, focus mode, themes — borrows
+directly from monkeytype's.
+
+## What it does
+
+- RSVP reading: one word (or up to three) at a time, pivot letter aligned on
+  a fixed guide, longer pauses on punctuation
+- Any speed, with presets or a custom value
+- Focus mode: everything but the current word fades out
+- `space` play/pause, `tab` restart, `←`/`→` to step a word at a time
+- A library: import PDF, EPUB, or TXT, parsed client-side with pdf.js and
+  JSZip, kept in IndexedDB along with your reading position
+- 5 themes (serika dark, serika, paper, nord, dracula), 10 fonts, French and
+  English
+
+Texts and books never leave your browser. An optional account only syncs
+reading stats and settings, not the content you're reading.
+
+## Stack
+
+Next.js, Tailwind CSS v4, shadcn/ui. Linting and formatting run on oxlint
+and oxfmt, with a `shadcn/no-arbitrary-values` rule that keeps app code on
+the design tokens in `globals.css` instead of one-off Tailwind values.
+
+## Why
+
+I wanted to read faster without installing anything, and monkeytype already
+nailed the kind of minimal, keyboard-first interface that disappears once
+you're using it. Pointing that same interaction model at RSVP reading felt
+obvious once I'd used monkeytype enough to have it memorized.

@@ -1,9 +1,45 @@
 ---
 title: "Building db9s, a database TUI"
 date: "2026-10-20"
-summary: "Notes on building a terminal UI for browsing databases in Rust."
+summary: "A k9s-style terminal UI for browsing, querying, and editing databases and message queues, written in Rust."
+tags: ["rust", "tui", "db9s"]
 ---
 
-[db9s](https://github.com/damien-mathieu1/db9s) is a terminal UI for
-browsing databases, written in Rust. This post will cover the design
-decisions behind it — more details coming soon.
+[db9s](https://github.com/damien-mathieu1/db9s) is a k9s-style terminal UI
+for browsing, querying, and editing databases and message queues, written in
+Rust. Same idea as `k9s` for Kubernetes: one tool, consistent screens and
+keybindings, no matter what you're pointed at.
+
+## What it talks to
+
+PostgreSQL, MongoDB, Redis, and RabbitMQ are supported today. MySQL/MariaDB,
+SQLite, SQL Server, ClickHouse, and Cassandra/ScyllaDB are planned — every
+backend gets the same screens and keys, so adding one is mostly about mapping
+its data model onto db9s's containers/rows abstraction.
+
+## Using it
+
+```bash
+cargo install db9s
+db9s --postgres postgres://user:pass@localhost/db
+db9s --mongo mongodb://localhost:27017
+db9s --redis redis://localhost:6379
+db9s --rabbitmq http://guest:guest@localhost:15672
+```
+
+Or just run `db9s` and add connections from the TUI with `a` — they're saved
+to `~/.config/db9s/config.toml`.
+
+Navigation is `j`/`k` or arrows, `/` for a raw query (SQL for Postgres, a
+JSON filter or pipeline for Mongo, any command for Redis), `e` to edit a row
+inline, `E` to edit it in `$EDITOR` with a diff confirmation, and `d` to
+delete it. The footer always shows what's available at the current screen.
+
+## Why
+
+I wanted one muscle-memory set of keys for poking at whatever datastore I'm
+debugging that day, instead of switching between `psql`, `mongosh`,
+`redis-cli`, and the RabbitMQ management UI. Redis in particular maps each
+key type (string, hash, list, set, zset, stream) onto db9s's rows with the
+right edit/delete semantics for that type, so it behaves like `redis-cli`
+would, just browsable.
