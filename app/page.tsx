@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 const PROJECTS = [
   {
     name: "db9s",
@@ -15,29 +17,37 @@ const PROJECTS = [
       "Pulls financial statements from SEC/EDINET filings, normalizes XBRL into clean CSV/Excel",
     url: "https://github.com/damien-mathieu1/finExtract",
   },
-  {
-    name: "kippu",
-    description: "Kafka ticket creation CLI",
-    url: "https://github.com/damien-mathieu1/kippu",
-  },
 ];
 
 export default function Home() {
   return (
     <div className="max-w-2xl mx-auto px-6 py-16 space-y-16">
-      <section>
-        <h1 className="text-2xl font-semibold mb-4">Damien Mathieu</h1>
-        <p className="text-neutral-700 dark:text-neutral-300 leading-relaxed">
-          Full-stack developer based in Montpellier, France. Working at{" "}
-          <a
-            href="https://anaba.fr"
-            className="underline hover:text-neutral-900 dark:hover:text-neutral-100"
-          >
-            anaba
-          </a>
-          , building side projects and contributing to open source in Rust
-          and TypeScript.
-        </p>
+      <section className="flex items-start gap-6">
+        <div className="flex-1">
+          <h1 className="text-2xl font-semibold mb-4">Damien Mathieu</h1>
+          <p className="text-neutral-700 dark:text-neutral-300 leading-relaxed">
+            Full-stack developer based in Montpellier, France. Working at{" "}
+            <a
+              href="https://anaba.fr"
+              className="underline hover:text-neutral-900 dark:hover:text-neutral-100"
+            >
+              anaba
+            </a>
+            , building side projects and contributing to open source in Rust
+            and TypeScript.
+          </p>
+        </div>
+        <div className="shrink-0 w-28 text-center">
+          <Image
+            src="/gabano.jpg"
+            alt="Gabano"
+            width={112}
+            height={112}
+            className="rounded-full object-cover mx-auto"
+          />
+          <p className="text-sm font-medium mt-2">Gabano</p>
+          <p className="text-xs text-neutral-500">DevOps Engineer</p>
+        </div>
       </section>
 
       <section>
