@@ -16,6 +16,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Damien Mathieu",
   description: "Full-stack developer in Montpellier, France.",
+  alternates: {
+    types: { "application/rss+xml": "/feed.xml" },
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
