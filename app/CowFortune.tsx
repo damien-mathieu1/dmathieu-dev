@@ -75,7 +75,7 @@ export default function CowFortune() {
   if (!fortune) return null;
 
   return (
-    <pre className="text-xs leading-tight text-neutral-500 dark:text-neutral-400 overflow-x-auto">
+    <pre className="text-xs leading-tight text-neutral-500 dark:text-neutral-400">
       {cowsay(fortune)}
     </pre>
   );
