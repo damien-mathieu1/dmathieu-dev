@@ -7,12 +7,13 @@ export const metadata = {
 };
 
 export default function BlogIndex() {
-  const posts = getAllPosts();
+  const en = getAllPosts("en");
+  const fr = getAllPosts("fr");
 
   return (
     <div className="max-w-2xl mx-auto px-6 py-16">
       <BlogHeader />
-      <BlogList posts={posts} />
+      <BlogList en={en} fr={fr} />
     </div>
   );
 }

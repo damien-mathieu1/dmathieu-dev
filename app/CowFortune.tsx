@@ -67,6 +67,8 @@ export default function CowFortune() {
 
   useEffect(() => {
     const list = FORTUNES[locale];
+    // Random pick must happen client-side post-mount to avoid an SSR/client mismatch.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setFortune(list[Math.floor(Math.random() * list.length)]);
   }, [locale]);
 

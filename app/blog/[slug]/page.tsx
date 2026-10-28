@@ -1,11 +1,10 @@
-import fs from "fs";
-import path from "path";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
-import { getAllPosts, getPostBySlug } from "@/lib/posts";
+import { getAllPosts, getPostBySlug, postSlugExists } from "@/lib/posts";
+import PostSwitcher from "./PostSwitcher";
 
 export function generateStaticParams() {
-  return getAllPosts().map((post) => ({ slug: post.slug }));
+  return getAllPosts("en").map((post) => ({ slug: post.slug }));
 }
 
 export async function generateMetadata({
@@ -14,27 +13,18 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const exists = fs.existsSync(
-    path.join(process.cwd(), "posts", `${slug}.mdx`)
-  );
-  if (!exists) return {};
-  const { meta } = getPostBySlug(slug);
+  if (!postSlugExists(slug)) return {};
+  const { meta } = getPostBySlug(slug, "en");
   return { title: `${meta.title} — Damien Mathieu` };
 }
 
-export default async function BlogPost({
-  params,
+function Article({
+  meta,
+  content,
 }: {
-  params: Promise<{ slug: string }>;
+  meta: { title: string; date: string };
+  content: string;
 }) {
-  const { slug } = await params;
-  const exists = fs.existsSync(
-    path.join(process.cwd(), "posts", `${slug}.mdx`)
-  );
-  if (!exists) notFound();
-
-  const { meta, content } = getPostBySlug(slug);
-
   return (
     <article className="max-w-2xl mx-auto px-6 py-16">
       <h1 className="text-2xl font-semibold">{meta.title}</h1>
@@ -43,5 +33,24 @@ export default async function BlogPost({
         <MDXRemote source={content} />
       </div>
     </article>
+  );
+}
+
+export default async function BlogPost({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  if (!postSlugExists(slug)) notFound();
+
+  const en = getPostBySlug(slug, "en");
+  const fr = getPostBySlug(slug, "fr");
+
+  return (
+    <PostSwitcher
+      en={<Article meta={en.meta} content={en.content} />}
+      fr={<Article meta={fr.meta} content={fr.content} />}
+    />
   );
 }

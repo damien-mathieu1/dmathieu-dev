@@ -1,0 +1,57 @@
+---
+title: "Construire finExtract, transformer des dépôts en tableurs propres"
+date: "2026-10-24"
+summary: "Extraire les états financiers XBRL des dépôts SEC et EDINET et les normaliser en CSV/Excel propre."
+tags: ["python", "fastapi", "nextjs", "finextract"]
+---
+
+[finExtract](https://github.com/damien-mathieu1/finExtract) extrait les
+états financiers des dépôts officiels d'entreprises — SEC EDGAR pour les
+US, EDINET pour le Japon — via leurs données XBRL/iXBRL, les normalise à
+travers US GAAP, GAAP japonais et IFRS dans un schéma commun, et exporte du
+CSV/Excel propre. Plus besoin de recopier des chiffres à la main depuis un
+PDF.
+
+## Pipeline
+
+1. **Extraction** — récupère les faits XBRL bruts d'un dépôt, depuis SEC
+   EDGAR, EDINET, ou un fichier XBRL uploadé par l'utilisateur.
+2. **Mapping** — traduit les tags spécifiques au déposant
+   (`us-gaap:Revenues`, `jppfs_cor:NetSales`, ...) vers un jeu de champs
+   standard (`revenue`, `net_income`, ...) via une table de correspondance
+   statique.
+3. **Export** — sert l'état normalisé en JSON, en classeur Excel/CSV stylé
+   façon Bloomberg (feuille de graphique optionnelle), ou le persiste dans
+   Postgres comme historique d'extraction.
+
+## Architecture
+
+Backend FastAPI, frontend Next.js, Clerk pour l'auth, Postgres pour
+l'historique d'extraction. Le backend est organisé en bounded contexts DDD
+avec des frontières hexagonales (ports & adapters) dans un seul service :
+
+```
+src/finextract/
+├── shared_kernel/    # objets valeur partagés (Currency, FiscalPeriod, ReportingStandard)
+├── extraction/       # récupère les faits XBRL bruts d'un dépôt
+├── mapping/          # normalise les faits bruts vers le schéma standard
+├── export/           # écrit le schéma standard en CSV/Excel/Postgres
+└── interfaces/http/  # routes FastAPI
+```
+
+Chaque contexte est `domain/` (entités + ports, aucun import de framework)
+→ `application/` (cas d'usage) → `infrastructure/` (adapteurs : parseur
+XBRL, table de tags, writers CSV/Excel/Postgres). L'infrastructure dépend
+des ports du domaine, jamais l'inverse — donc n'importe quel contexte
+pourrait devenir son propre service plus tard sans toucher à la logique
+métier.
+
+## Pourquoi hexagonal, ici précisément
+
+Deux sources de données très différentes (le XBRL de SEC EDGAR vs. l'iXBRL
+d'EDINET) et trois normes comptables doivent toutes atterrir sur les mêmes
+champs `revenue` / `net_income` / ... Garder la logique de mapping derrière
+un port, avec les particularités de parsing de chaque source isolées dans
+son propre adapteur, fait qu'ajouter un nouveau déposant ou une nouvelle
+norme devient un nouvel adapteur — pas une réécriture du mapping ou de
+l'export.

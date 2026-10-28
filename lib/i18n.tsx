@@ -58,12 +58,15 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>("en");
 
   useEffect(() => {
+    // Reading localStorage/navigator.language only works client-side, post-mount.
+    /* eslint-disable react-hooks/set-state-in-effect */
     const stored = window.localStorage.getItem("locale");
     if (stored === "en" || stored === "fr") {
       setLocaleState(stored);
     } else if (navigator.language.toLowerCase().startsWith("fr")) {
       setLocaleState("fr");
     }
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
 
   const setLocale = (next: Locale) => {

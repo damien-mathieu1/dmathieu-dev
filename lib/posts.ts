@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
+import type { Locale } from "./i18n";
 
 const POSTS_DIR = path.join(process.cwd(), "posts");
 
@@ -12,13 +13,18 @@ export type PostMeta = {
   tags: string[];
 };
 
-export function getAllPosts(): PostMeta[] {
-  const files = fs.readdirSync(POSTS_DIR).filter((f) => f.endsWith(".mdx"));
+function postExists(slug: string, locale: Locale) {
+  return fs.existsSync(path.join(POSTS_DIR, locale, `${slug}.mdx`));
+}
+
+export function getAllPosts(locale: Locale): PostMeta[] {
+  const dir = path.join(POSTS_DIR, locale);
+  const files = fs.readdirSync(dir).filter((f) => f.endsWith(".mdx"));
 
   return files
     .map((file) => {
       const slug = file.replace(/\.mdx$/, "");
-      const source = fs.readFileSync(path.join(POSTS_DIR, file), "utf8");
+      const source = fs.readFileSync(path.join(dir, file), "utf8");
       const { data } = matter(source);
       return {
         slug,
@@ -31,8 +37,12 @@ export function getAllPosts(): PostMeta[] {
     .sort((a, b) => (a.date < b.date ? 1 : -1));
 }
 
-export function getPostBySlug(slug: string) {
-  const source = fs.readFileSync(path.join(POSTS_DIR, `${slug}.mdx`), "utf8");
+export function getPostBySlug(slug: string, locale: Locale) {
+  const resolvedLocale = postExists(slug, locale) ? locale : "en";
+  const source = fs.readFileSync(
+    path.join(POSTS_DIR, resolvedLocale, `${slug}.mdx`),
+    "utf8"
+  );
   const { data, content } = matter(source);
   return {
     meta: {
@@ -44,4 +54,8 @@ export function getPostBySlug(slug: string) {
     },
     content,
   };
+}
+
+export function postSlugExists(slug: string) {
+  return postExists(slug, "en");
 }

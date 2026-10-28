@@ -5,10 +5,22 @@ import Link from "next/link";
 import type { PostMeta } from "@/lib/posts";
 import { useLocale } from "@/lib/i18n";
 
-export default function BlogList({ posts }: { posts: PostMeta[] }) {
-  const { t } = useLocale();
+export default function BlogList({
+  en,
+  fr,
+}: {
+  en: PostMeta[];
+  fr: PostMeta[];
+}) {
+  const { locale, t } = useLocale();
   const [tag, setTag] = useState<string | null>(null);
   const [sort, setSort] = useState<"newest" | "oldest">("newest");
+
+  const posts = useMemo(() => {
+    if (locale !== "fr") return en;
+    const frBySlug = new Map(fr.map((p) => [p.slug, p]));
+    return en.map((p) => frBySlug.get(p.slug) ?? p);
+  }, [en, fr, locale]);
 
   const tags = useMemo(
     () => Array.from(new Set(posts.flatMap((p) => p.tags))).sort(),

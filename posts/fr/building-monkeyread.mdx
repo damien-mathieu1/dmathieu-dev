@@ -1,0 +1,44 @@
+---
+title: "Construire monkeyread, un lecteur rapide façon monkeytype"
+date: "2026-10-22"
+summary: "Un lecteur RSVP avec le look et le feel de monkeytype, textes et livres gardés dans le navigateur."
+tags: ["typescript", "nextjs", "monkeyread"]
+---
+
+[monkeyread](https://github.com/damien-mathieu1/monkeyread)
+([monkeyread.eu](https://monkeyread.eu)) est un lecteur rapide RSVP
+gratuit, avec le look et le feel de
+[monkeytype](https://monkeytype.com). Les mots apparaissent un par un au
+même endroit, avec une lettre pivot surlignée sur laquelle l'œil se pose,
+et toute l'UX — layout, barre de config, mode focus, thèmes — vient
+directement de monkeytype.
+
+## Ce qu'il fait
+
+- Lecture RSVP : un mot (ou jusqu'à trois) à la fois, lettre pivot alignée
+  sur un repère fixe, pauses plus longues sur la ponctuation
+- N'importe quelle vitesse, avec des presets ou une valeur custom
+- Mode focus : tout sauf le mot courant s'estompe
+- `space` lecture/pause, `tab` redémarrer, `←`/`→` pour avancer d'un mot
+- Une bibliothèque : import PDF, EPUB ou TXT, parsé côté navigateur
+  (pdf.js, JSZip), gardé dans IndexedDB avec la position de lecture
+- 5 thèmes (serika dark, serika, paper, nord, dracula), 10 polices,
+  interface français et anglais
+
+Les textes et livres ne quittent jamais le navigateur. Un compte optionnel
+ne synchronise que les stats de lecture et les réglages, pas le contenu lu.
+
+## Stack
+
+Next.js, Tailwind CSS v4, shadcn/ui. Lint et format tournent sur oxlint et
+oxfmt, avec une règle `shadcn/no-arbitrary-values` qui garde le code sur
+les tokens de design de `globals.css` plutôt que des valeurs Tailwind
+ponctuelles.
+
+## Pourquoi
+
+Je voulais lire plus vite sans rien installer, et monkeytype avait déjà
+l'interface minimale et clavier-first qui disparaît une fois qu'on l'a en
+main. Pointer ce même modèle d'interaction vers la lecture RSVP semblait
+évident une fois que j'avais assez utilisé monkeytype pour le connaître
+par cœur.

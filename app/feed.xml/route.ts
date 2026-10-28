@@ -11,7 +11,7 @@ function escapeXml(s: string) {
 }
 
 export function GET() {
-  const posts = getAllPosts();
+  const posts = getAllPosts("en");
 
   const items = posts
     .map(

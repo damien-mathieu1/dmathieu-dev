@@ -1,0 +1,49 @@
+---
+title: "Construire db9s, un TUI pour bases de données"
+date: "2026-10-20"
+summary: "Un TUI façon k9s pour parcourir, interroger et éditer bases de données et files de messages, écrit en Rust."
+tags: ["rust", "tui", "db9s"]
+---
+
+[db9s](https://github.com/damien-mathieu1/db9s) est un terminal UI façon
+k9s pour parcourir, interroger et éditer des bases de données et des files
+de messages, écrit en Rust. Même principe que `k9s` pour Kubernetes : un
+seul outil, des écrans et des raccourcis cohérents, quel que soit le
+backend visé.
+
+## Ce qu'il sait faire
+
+PostgreSQL, MongoDB, Redis et RabbitMQ sont supportés aujourd'hui.
+MySQL/MariaDB, SQLite, SQL Server, ClickHouse et Cassandra/ScyllaDB sont
+prévus — chaque backend a les mêmes écrans et les mêmes touches, donc en
+ajouter un revient surtout à mapper son modèle de données sur l'abstraction
+containers/rows de db9s.
+
+## Utilisation
+
+```bash
+cargo install db9s
+db9s --postgres postgres://user:pass@localhost/db
+db9s --mongo mongodb://localhost:27017
+db9s --redis redis://localhost:6379
+db9s --rabbitmq http://guest:guest@localhost:15672
+```
+
+Ou on lance juste `db9s` et on ajoute les connexions depuis le TUI avec
+`a` — elles sont sauvegardées dans `~/.config/db9s/config.toml`.
+
+La navigation se fait en `j`/`k` ou flèches, `/` pour une requête brute (SQL
+pour Postgres, un filtre JSON ou un pipeline pour Mongo, n'importe quelle
+commande pour Redis), `e` pour éditer une ligne inline, `E` pour l'éditer
+dans `$EDITOR` avec confirmation du diff, et `d` pour supprimer. Le pied de
+page affiche toujours ce qui est dispo sur l'écran courant.
+
+## Pourquoi
+
+Je voulais un seul jeu de raccourcis en mémoire musculaire pour fouiller
+dans n'importe quel datastore que je débugge ce jour-là, plutôt que de
+jongler entre `psql`, `mongosh`, `redis-cli` et l'interface d'admin
+RabbitMQ. Redis en particulier mappe chaque type de clé (string, hash,
+list, set, zset, stream) sur les lignes de db9s avec la bonne sémantique
+d'édition/suppression pour ce type, donc ça se comporte comme `redis-cli`,
+en navigable.

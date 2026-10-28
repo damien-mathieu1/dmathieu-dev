@@ -40,7 +40,7 @@ export default function Home() {
               >
                 anaba
               </a>
-              , je construis des side projects et je contribue à l'open
+              , je construis des side projects et je contribue à l&apos;open
               source en Rust et TypeScript.
             </p>
           ) : (
