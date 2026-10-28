@@ -70,8 +70,37 @@ Deuxième run : tag, changelog et release GitHub sont passés nickel. La
 publication npm a échoué de son côté, séparément — pas de secret
 `NPM_TOKEN` configuré encore, ce qui est une étape de config, pas un bug.
 
-## Ce qu'il reste
+## Deux bugs de plus avant la vraie publication
 
-Mettre `NPM_TOKEN` en secret du repo et relancer le job de release pour
-avoir une vraie version sur le registre. Le reste du pipeline — commits
-forcés, CI, changelog, releases GitHub — fonctionne déjà de bout en bout.
+Ajouter `NPM_TOKEN` ne suffisait pas. Les Granular Access Tokens de npm
+exigent un OTP à chaque publication par défaut, même depuis une CI — il y a
+une case séparée « bypass two-factor authentication for write operations »
+à cocher explicitement à la création du token, sinon toute publication
+échoue en mode non-interactif.
+
+Une fois ça réglé, relancer le même job échoué a buté sur une autre
+erreur :
+
+```
+! [rejected]        main -> main (non-fast-forward)
+```
+
+Un re-run GitHub Actions réutilise le SHA du commit *d'origine* comme
+checkout — pas la tête actuelle de la branche. Mon premier run avait déjà
+poussé un commit `chore(release)` sur `main`, donc le re-run a construit
+son propre commit de release sur un parent devenu obsolète, et le push a
+été rejeté. Fix : épingler `actions/checkout` sur `ref: main` pour que même
+un re-run parte de la tête réelle, plus un `git pull --rebase origin main`
+juste avant le push en filet de sécurité.
+
+```yaml
+- uses: actions/checkout@v5
+  with:
+    ref: main
+    fetch-depth: 0
+```
+
+Après ça, un run `workflow_dispatch` frais est passé au vert de bout en
+bout : lint, tests, build, tag, changelog, release GitHub, publication npm.
+[`cowsay-ts@2026.10.2`](https://www.npmjs.com/package/cowsay-ts) est en
+ligne.

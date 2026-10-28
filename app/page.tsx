@@ -21,6 +21,11 @@ const PROJECTS = [
       "Pulls financial statements from SEC/EDINET filings, normalizes XBRL into clean CSV/Excel",
     url: "https://github.com/damien-mathieu1/finExtract",
   },
+  {
+    name: "cowsay-ts",
+    description: "Zero-dependency cowsay, in TypeScript, with ESM and CJS builds",
+    url: "https://www.npmjs.com/package/cowsay-ts",
+  },
 ];
 
 export default function Home() {

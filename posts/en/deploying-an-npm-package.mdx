@@ -66,8 +66,35 @@ Second run: tag, changelog, and GitHub release all went through clean. npm
 publish failed on its own, separately — no `NPM_TOKEN` secret configured
 yet, which is a config step, not a bug.
 
-## What's left
+## Two more bugs before it actually published
 
-Set `NPM_TOKEN` as a repo secret and re-run the release job to actually get
-a version on the registry. Everything else in the pipeline — commit
-enforcement, CI, changelog, GitHub releases — already works, end to end.
+Adding `NPM_TOKEN` wasn't enough on its own. npm's Granular Access Tokens
+default to requiring an OTP for every publish, even from CI — there's a
+separate "bypass two-factor authentication for write operations" checkbox
+that has to be enabled explicitly when generating the token, or every
+publish fails non-interactively.
+
+With that fixed, re-running the same failed job hit a different error:
+
+```
+! [rejected]        main -> main (non-fast-forward)
+```
+
+A GitHub Actions re-run reuses the *original* commit SHA as its checkout —
+not the current branch tip. My first run had already pushed a
+`chore(release)` commit to `main`, so the re-run built its own release
+commit on a now-stale parent and got rejected on push. Fix: pin
+`actions/checkout` to `ref: main` so even a re-run starts from the live
+tip, plus a `git pull --rebase origin main` right before the push as a
+safety net.
+
+```yaml
+- uses: actions/checkout@v5
+  with:
+    ref: main
+    fetch-depth: 0
+```
+
+After that, a fresh `workflow_dispatch` run went green end to end:
+lint, test, build, tag, changelog, GitHub release, npm publish.
+[`cowsay-ts@2026.10.2`](https://www.npmjs.com/package/cowsay-ts) is live.
