@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Damien Mathieu",
-  description: "Full-stack developer in Montpellier, France.",
+  description: "DevOps engineer in Montpellier, France.",
   alternates: {
     types: { "application/rss+xml": "/feed.xml" },
   },

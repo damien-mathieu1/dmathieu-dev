@@ -32,7 +32,7 @@ export function GET() {
   <channel>
     <title>Damien Mathieu</title>
     <link>${SITE_URL}</link>
-    <description>Full-stack developer in Montpellier, France.</description>
+    <description>DevOps engineer in Montpellier, France.</description>
     <language>en</language>${items}
   </channel>
 </rss>`;

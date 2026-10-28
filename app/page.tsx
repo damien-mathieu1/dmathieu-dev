@@ -33,7 +33,7 @@ export default function Home() {
           <h1 className="text-2xl font-semibold mb-4">Damien Mathieu</h1>
           {locale === "fr" ? (
             <p className="text-neutral-700 dark:text-neutral-300 leading-relaxed">
-              Développeur full-stack basé à Montpellier. Je travaille chez{" "}
+              Ingénieur DevOps basé à Montpellier. Je travaille chez{" "}
               <a
                 href="https://anaba.fr"
                 className="underline hover:text-neutral-900 dark:hover:text-neutral-100"
@@ -45,7 +45,7 @@ export default function Home() {
             </p>
           ) : (
             <p className="text-neutral-700 dark:text-neutral-300 leading-relaxed">
-              Full-stack developer based in Montpellier, France. Working at{" "}
+              DevOps engineer based in Montpellier, France. Working at{" "}
               <a
                 href="https://anaba.fr"
                 className="underline hover:text-neutral-900 dark:hover:text-neutral-100"
