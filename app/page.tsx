@@ -1,4 +1,8 @@
+"use client";
+
 import Image from "next/image";
+import { useLocale } from "@/lib/i18n";
+import CowFortune from "./CowFortune";
 
 const PROJECTS = [
   {
@@ -20,22 +24,38 @@ const PROJECTS = [
 ];
 
 export default function Home() {
+  const { locale, t } = useLocale();
+
   return (
     <div className="max-w-2xl mx-auto px-6 py-16 space-y-16">
       <section className="flex items-start gap-6">
         <div className="flex-1">
           <h1 className="text-2xl font-semibold mb-4">Damien Mathieu</h1>
-          <p className="text-neutral-700 dark:text-neutral-300 leading-relaxed">
-            Full-stack developer based in Montpellier, France. Working at{" "}
-            <a
-              href="https://anaba.fr"
-              className="underline hover:text-neutral-900 dark:hover:text-neutral-100"
-            >
-              anaba
-            </a>
-            , building side projects and contributing to open source in Rust
-            and TypeScript.
-          </p>
+          {locale === "fr" ? (
+            <p className="text-neutral-700 dark:text-neutral-300 leading-relaxed">
+              Développeur full-stack basé à Montpellier. Je travaille chez{" "}
+              <a
+                href="https://anaba.fr"
+                className="underline hover:text-neutral-900 dark:hover:text-neutral-100"
+              >
+                anaba
+              </a>
+              , je construis des side projects et je contribue à l'open
+              source en Rust et TypeScript.
+            </p>
+          ) : (
+            <p className="text-neutral-700 dark:text-neutral-300 leading-relaxed">
+              Full-stack developer based in Montpellier, France. Working at{" "}
+              <a
+                href="https://anaba.fr"
+                className="underline hover:text-neutral-900 dark:hover:text-neutral-100"
+              >
+                anaba
+              </a>
+              , building side projects and contributing to open source in
+              Rust and TypeScript.
+            </p>
+          )}
         </div>
         <div className="shrink-0 w-28 text-center">
           <Image
@@ -51,7 +71,7 @@ export default function Home() {
       </section>
 
       <section>
-        <h2 className="text-lg font-semibold mb-4">Open source</h2>
+        <h2 className="text-lg font-semibold mb-4">{t("home.openSource")}</h2>
         <ul className="space-y-3">
           {PROJECTS.map((p) => (
             <li key={p.name}>
@@ -71,7 +91,7 @@ export default function Home() {
       </section>
 
       <section>
-        <h2 className="text-lg font-semibold mb-4">Contact</h2>
+        <h2 className="text-lg font-semibold mb-4">{t("home.contact")}</h2>
         <ul className="space-y-2 text-neutral-700 dark:text-neutral-300">
           <li>
             <a
@@ -98,6 +118,10 @@ export default function Home() {
             </a>
           </li>
         </ul>
+      </section>
+
+      <section>
+        <CowFortune />
       </section>
     </div>
   );

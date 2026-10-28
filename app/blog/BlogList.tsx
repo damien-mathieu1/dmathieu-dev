@@ -3,8 +3,10 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import type { PostMeta } from "@/lib/posts";
+import { useLocale } from "@/lib/i18n";
 
 export default function BlogList({ posts }: { posts: PostMeta[] }) {
+  const { t } = useLocale();
   const [tag, setTag] = useState<string | null>(null);
   const [sort, setSort] = useState<"newest" | "oldest">("newest");
 
@@ -31,26 +33,26 @@ export default function BlogList({ posts }: { posts: PostMeta[] }) {
               : "border-neutral-300 dark:border-neutral-700 text-neutral-500"
           }`}
         >
-          all
+          {t("blog.all")}
         </button>
-        {tags.map((t) => (
+        {tags.map((tg) => (
           <button
-            key={t}
-            onClick={() => setTag(t)}
+            key={tg}
+            onClick={() => setTag(tg)}
             className={`text-xs px-2 py-1 rounded border ${
-              tag === t
+              tag === tg
                 ? "border-neutral-900 dark:border-neutral-100"
                 : "border-neutral-300 dark:border-neutral-700 text-neutral-500"
             }`}
           >
-            {t}
+            {tg}
           </button>
         ))}
         <button
           onClick={() => setSort(sort === "newest" ? "oldest" : "newest")}
           className="text-xs px-2 py-1 rounded border border-neutral-300 dark:border-neutral-700 text-neutral-500 ml-auto"
         >
-          {sort === "newest" ? "newest first" : "oldest first"}
+          {sort === "newest" ? t("blog.newest") : t("blog.oldest")}
         </button>
       </div>
 
@@ -69,12 +71,12 @@ export default function BlogList({ posts }: { posts: PostMeta[] }) {
             </p>
             {post.tags.length > 0 && (
               <div className="flex gap-2 mt-2">
-                {post.tags.map((t) => (
+                {post.tags.map((tg) => (
                   <span
-                    key={t}
+                    key={tg}
                     className="text-xs text-neutral-500 bg-neutral-100 dark:bg-neutral-900 px-2 py-0.5 rounded"
                   >
-                    {t}
+                    {tg}
                   </span>
                 ))}
               </div>
@@ -82,7 +84,7 @@ export default function BlogList({ posts }: { posts: PostMeta[] }) {
           </li>
         ))}
         {filtered.length === 0 && (
-          <p className="text-neutral-500 text-sm">No posts with this tag.</p>
+          <p className="text-neutral-500 text-sm">{t("blog.empty")}</p>
         )}
       </ul>
     </div>
