@@ -1,0 +1,73 @@
+---
+title: "How to deploy an npm package"
+date: "2026-10-28"
+summary: "First time publishing to npm — CalVer, git-cliff, husky, and a real CI bug I hit along the way."
+tags: ["npm", "typescript", "ci-cd", "cowsay-ts"]
+---
+
+I'd never published a package to npm, so I picked the smallest possible
+excuse to do it: [cowsay-ts](https://github.com/damien-mathieu1/cowsay-ts),
+a zero-dependency TypeScript cowsay.
+
+## Why cowsay
+
+`cowsay` on npm works fine and has millions of weekly downloads — there's no
+real gap to fill. The point wasn't to replace it, it was to have a complete,
+trivial-enough-to-finish project to run end to end: write the thing, publish
+it, automate the release. cowsay is about as low-stakes as it gets: wrap text
+in a speech bubble, print an animal under it. All the actual learning is in
+the pipeline around it, not the code itself.
+
+## The pipeline
+
+- **Conventional Commits**, enforced locally by a husky `commit-msg` hook
+  running commitlint.
+- A `pre-commit` hook running lint, tests, and `npm audit --audit-level
+  critical` — so broken or vulnerable code never gets committed.
+- **CI** on every push/PR: lint, test, build, audit.
+- **CalVer releases** (`vYYYY.M.N`), cut by hand via a `workflow_dispatch`
+  GitHub Action: compute the tag, bump `package.json`, generate a changelog
+  with [git-cliff](https://git-cliff.org), tag, push, create a GitHub
+  release, publish to npm.
+
+None of this is required for a one-file package. It's the same shape I'd
+want for anything bigger, exercised on something small enough that I could
+actually get it working in an afternoon.
+
+## The bug that shipped anyway
+
+First real run of the release workflow failed on the changelog step:
+
+```
+Error: ArgumentError("'-o' and '-p' can only be used together if they point to different files")
+...
+stat: cannot statx 'CHANGELOG.md': No such file or directory
+```
+
+Two separate problems, both in the same step. I'd set an `OUTPUT`
+environment variable *and* passed `--prepend CHANGELOG.md` as an arg — the
+action turns `OUTPUT` into its own `-o CHANGELOG.md`, so git-cliff saw both
+`-o` and `-p` pointing at the same file and refused. Dropping the `OUTPUT`
+env var fixed that. The second error was simpler: `--prepend` needs the file
+to already exist, and on a brand new repo there's no `CHANGELOG.md` yet —
+so I added a `touch CHANGELOG.md` step before git-cliff runs.
+
+```yaml
+- name: Ensure CHANGELOG.md exists
+  run: touch CHANGELOG.md
+
+- name: Generate changelog
+  uses: orhun/git-cliff-action@v4
+  with:
+    args: --tag ${{ steps.version.outputs.tag }} --unreleased --prepend CHANGELOG.md
+```
+
+Second run: tag, changelog, and GitHub release all went through clean. npm
+publish failed on its own, separately — no `NPM_TOKEN` secret configured
+yet, which is a config step, not a bug.
+
+## What's left
+
+Set `NPM_TOKEN` as a repo secret and re-run the release job to actually get
+a version on the registry. Everything else in the pipeline — commit
+enforcement, CI, changelog, GitHub releases — already works, end to end.
