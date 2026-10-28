@@ -29,7 +29,7 @@ function Article({
     <article className="max-w-2xl mx-auto px-6 py-16">
       <h1 className="text-2xl font-semibold">{meta.title}</h1>
       <p className="text-sm text-neutral-500 mt-2 mb-8">{meta.date}</p>
-      <div className="space-y-4 leading-relaxed text-neutral-700 dark:text-neutral-300 [&_a]:underline [&_a]:text-neutral-900 dark:[&_a]:text-neutral-100">
+      <div className="space-y-4 leading-relaxed text-neutral-700 dark:text-neutral-300 [&_a]:underline [&_a]:text-neutral-900 dark:[&_a]:text-neutral-100 [&_pre]:overflow-x-auto [&_pre]:max-w-full">
         <MDXRemote source={content} />
       </div>
     </article>
