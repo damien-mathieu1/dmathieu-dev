@@ -14,6 +14,18 @@ directly from monkeytype's.
 
 ![monkeyread demo](/blog/monkeyread-demo.gif)
 
+> **Repo:** [damien-mathieu1/monkeyread](https://github.com/damien-mathieu1/monkeyread) — star it if you read faster now.
+
+```mermaid
+flowchart LR
+    F["PDF / EPUB / TXT"] --> P["client-side parse<br/>(pdf.js, JSZip)"]
+    P --> DB[("IndexedDB<br/>text + position")]
+    DB --> R["RSVP renderer<br/>pivot letter, speed, focus mode"]
+```
+
+Parsing and storage stay in the browser — nothing you import or read ever
+leaves the tab.
+
 ## What it does
 
 - RSVP reading: one word (or up to three) at a time, pivot letter aligned on

@@ -12,6 +12,25 @@ keybindings, no matter what you're pointed at.
 
 ![db9s demo](/blog/db9s-demo.gif)
 
+> **Repo:** [damien-mathieu1/db9s](https://github.com/damien-mathieu1/db9s) — star it if it replaces a tab you had open.
+
+## Architecture
+
+```mermaid
+flowchart LR
+    U(["you, in a terminal"]) --> T["db9s (TUI)"]
+    T --> PG[(PostgreSQL)]
+    T --> MG[(MongoDB)]
+    T --> RD[(Redis)]
+    T --> RMQ[(RabbitMQ)]
+    T -.planned.-> MY[(MySQL/MariaDB)]
+    T -.planned.-> CH[(ClickHouse)]
+```
+
+One set of screens and keybindings, mapped onto each backend's own
+containers/rows shape — adding a backend means writing that mapping, not a
+new UI.
+
 ## What it talks to
 
 PostgreSQL, MongoDB, Redis, and RabbitMQ are supported today. MySQL/MariaDB,

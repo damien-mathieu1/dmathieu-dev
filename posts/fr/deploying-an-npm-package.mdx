@@ -10,6 +10,8 @@ excuse possible pour le faire :
 [cowsay-ts](https://github.com/damien-mathieu1/cowsay-ts), un cowsay en
 TypeScript, zéro dépendance.
 
+> **Repo :** [damien-mathieu1/cowsay-ts](https://github.com/damien-mathieu1/cowsay-ts) — tout le pipeline de release ci-dessous y est.
+
 ## Pourquoi cowsay
 
 `cowsay` sur npm marche très bien et a des millions de téléchargements par
@@ -31,6 +33,16 @@ l'apprentissage réel est dans le pipeline autour, pas dans le code lui-même.
   Action `workflow_dispatch` : calcule le tag, bump `package.json`, génère
   un changelog avec [git-cliff](https://git-cliff.org), tag, push, crée une
   release GitHub, publie sur npm.
+
+```mermaid
+flowchart LR
+    C["commit (commitlint)"] --> CI["CI : lint, tests, build, audit"]
+    CI --> D["workflow_dispatch"]
+    D --> V["calcule le tag, bump package.json"]
+    V --> CL["changelog git-cliff"]
+    CL --> G["tag + push + release GitHub"]
+    G --> N["publication npm"]
+```
 
 Rien de tout ça n'est nécessaire pour un package d'un seul fichier. C'est le
 même format que je voudrais pour n'importe quoi de plus gros, testé sur

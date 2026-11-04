@@ -13,6 +13,25 @@ backend visé.
 
 ![démo db9s](/blog/db9s-demo.gif)
 
+> **Repo :** [damien-mathieu1/db9s](https://github.com/damien-mathieu1/db9s) — un star si ça remplace un onglet que vous aviez ouvert.
+
+## Architecture
+
+```mermaid
+flowchart LR
+    U(["vous, dans un terminal"]) --> T["db9s (TUI)"]
+    T --> PG[(PostgreSQL)]
+    T --> MG[(MongoDB)]
+    T --> RD[(Redis)]
+    T --> RMQ[(RabbitMQ)]
+    T -.prévu.-> MY[(MySQL/MariaDB)]
+    T -.prévu.-> CH[(ClickHouse)]
+```
+
+Un seul jeu d'écrans et de raccourcis, mappé sur l'abstraction
+containers/rows propre à chaque backend — ajouter un backend revient à
+écrire ce mapping, pas une nouvelle UI.
+
 ## Ce qu'il sait faire
 
 PostgreSQL, MongoDB, Redis et RabbitMQ sont supportés aujourd'hui.

@@ -9,6 +9,8 @@ I'd never published a package to npm, so I picked the smallest possible
 excuse to do it: [cowsay-ts](https://github.com/damien-mathieu1/cowsay-ts),
 a zero-dependency TypeScript cowsay.
 
+> **Repo:** [damien-mathieu1/cowsay-ts](https://github.com/damien-mathieu1/cowsay-ts) — the whole release pipeline below is in there.
+
 ## Why cowsay
 
 `cowsay` on npm works fine and has millions of weekly downloads — there's no
@@ -29,6 +31,16 @@ the pipeline around it, not the code itself.
   GitHub Action: compute the tag, bump `package.json`, generate a changelog
   with [git-cliff](https://git-cliff.org), tag, push, create a GitHub
   release, publish to npm.
+
+```mermaid
+flowchart LR
+    C["commit (commitlint)"] --> CI["CI: lint, test, build, audit"]
+    CI --> D["workflow_dispatch"]
+    D --> V["compute tag, bump package.json"]
+    V --> CL["git-cliff changelog"]
+    CL --> G["tag + push + GitHub release"]
+    G --> N["npm publish"]
+```
 
 None of this is required for a one-file package. It's the same shape I'd
 want for anything bigger, exercised on something small enough that I could

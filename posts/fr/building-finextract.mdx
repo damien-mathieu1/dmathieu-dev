@@ -12,6 +12,8 @@ travers US GAAP, GAAP japonais et IFRS dans un schéma commun, et exporte du
 CSV/Excel propre. Plus besoin de recopier des chiffres à la main depuis un
 PDF.
 
+> **Repo :** [damien-mathieu1/finExtract](https://github.com/damien-mathieu1/finExtract) — issues et stars bienvenus.
+
 ## Pipeline
 
 1. **Extraction** — récupère les faits XBRL bruts d'un dépôt, depuis SEC
@@ -30,13 +32,19 @@ Backend FastAPI, frontend Next.js, Clerk pour l'auth, Postgres pour
 l'historique d'extraction. Le backend est organisé en bounded contexts DDD
 avec des frontières hexagonales (ports & adapters) dans un seul service :
 
-```
-src/finextract/
-├── shared_kernel/    # objets valeur partagés (Currency, FiscalPeriod, ReportingStandard)
-├── extraction/       # récupère les faits XBRL bruts d'un dépôt
-├── mapping/          # normalise les faits bruts vers le schéma standard
-├── export/           # écrit le schéma standard en CSV/Excel/Postgres
-└── interfaces/http/  # routes FastAPI
+```mermaid
+flowchart TD
+    subgraph svc["un seul service FastAPI"]
+        HTTP["interfaces/http — routes FastAPI"]
+        EXT["extraction — faits XBRL bruts<br/>(SEC EDGAR, EDINET, upload)"]
+        MAP["mapping — tag → champ standard<br/>(revenue, net_income, ...)"]
+        EXP["export — JSON / CSV / Excel / Postgres"]
+        SK["shared_kernel — Currency, FiscalPeriod, ReportingStandard"]
+        HTTP --> EXT --> MAP --> EXP
+        EXT -.utilise.-> SK
+        MAP -.utilise.-> SK
+        EXP -.utilise.-> SK
+    end
 ```
 
 Chaque contexte est `domain/` (entités + ports, aucun import de framework)

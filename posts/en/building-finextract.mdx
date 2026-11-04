@@ -11,6 +11,8 @@ for Japan — via their XBRL/iXBRL data, normalizes them across US GAAP,
 Japanese GAAP, and IFRS into a common schema, and exports clean CSV/Excel.
 No more copying numbers out of a PDF by hand.
 
+> **Repo:** [damien-mathieu1/finExtract](https://github.com/damien-mathieu1/finExtract) — issues and stars welcome.
+
 ## Pipeline
 
 1. **Extract** — fetch a filing's raw XBRL facts, from SEC EDGAR, EDINET, or
@@ -28,13 +30,19 @@ FastAPI backend, Next.js frontend, Clerk for auth, Postgres for extraction
 history. The backend is organized as DDD bounded contexts with hexagonal
 (ports & adapters) boundaries inside one service:
 
-```
-src/finextract/
-├── shared_kernel/    # cross-context value objects (Currency, FiscalPeriod, ReportingStandard)
-├── extraction/       # get raw XBRL facts from a filing
-├── mapping/          # normalize raw facts into the standard schema
-├── export/           # write the standard schema to CSV/Excel/Postgres
-└── interfaces/http/  # FastAPI routes
+```mermaid
+flowchart TD
+    subgraph svc["one FastAPI service"]
+        HTTP["interfaces/http — FastAPI routes"]
+        EXT["extraction — raw XBRL facts<br/>(SEC EDGAR, EDINET, upload)"]
+        MAP["mapping — tag → standard field<br/>(revenue, net_income, ...)"]
+        EXP["export — JSON / CSV / Excel / Postgres"]
+        SK["shared_kernel — Currency, FiscalPeriod, ReportingStandard"]
+        HTTP --> EXT --> MAP --> EXP
+        EXT -.uses.-> SK
+        MAP -.uses.-> SK
+        EXP -.uses.-> SK
+    end
 ```
 
 Each context is `domain/` (entities + ports, no framework imports) →

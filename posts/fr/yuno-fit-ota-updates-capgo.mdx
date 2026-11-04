@@ -1,0 +1,94 @@
+---
+title: "Mettre à jour l'app mobile yuno.fit en over-the-air avec Capgo"
+date: "2026-11-04"
+summary: "Comment l'app Capacitor de yuno.fit déploie les changements JS/web directement chez les utilisateurs, sans passer par la review App Store ou Play Store."
+tags: ["mobile", "capacitor", "capgo", "ota", "yuno"]
+---
+
+L'app mobile de yuno.fit est une app [Capacitor](https://capacitorjs.com)
+— la même base de code web, emballée dans une coquille native. Le binaire
+natif ne change que quand quelque chose de vraiment natif change (une
+nouvelle permission, un plugin) ; tout le reste — UI, écrans, logique
+métier — c'est le bundle JS/web, et c'est ce que
+[Capgo](https://capgo.app) pousse en over-the-air, en sautant la review
+App Store / Play Store pour la plupart des releases.
+
+```mermaid
+flowchart LR
+    B["build du bundle web"] --> U["upload du bundle via capgo"]
+    U --> S["CDN Capgo"]
+    S --> C1["l'app vérifie les updates<br/>au lancement / reprise"]
+    C1 --> D{"nouvelle version ?"}
+    D -->|oui| DL["téléchargement + vérification"]
+    DL --> AP["application, prochain lancement"]
+    D -->|non| NOOP["reste sur le bundle actuel"]
+```
+
+## Pourquoi l'OTA, et pas juste une web app
+
+La review native (App Store en particulier) peut prendre de quelques
+heures à quelques jours, et un fix pour un onboarding cassé ou un texte
+foireux ne devrait pas rester coincé derrière ça. Capgo se branche sur le
+cycle de vie des updates de Capacitor : l'app se connecte au CDN de Capgo,
+compare la version du bundle qu'elle fait tourner avec la dernière
+disponible, et s'il y en a une plus récente, la télécharge et l'applique
+— sans passer par un store, parce que rien de natif n'a changé.
+
+La frontière qui compte : **les changements JS/web partent instantanément,
+les changements natifs passent toujours par les stores.** Ajouter un
+nouveau plugin Capacitor ou toucher `Info.plist`/`AndroidManifest.xml`
+veut dire une vraie release. Corriger un bug dans la logique d'un écran,
+changer un texte, ajuster un appel API — ça, c'est un push OTA.
+
+## Mise en place
+
+```bash
+npm install @capgo/capacitor-updater
+npx cap sync
+```
+
+Capgo a besoin que le plugin soit initialisé tôt pour pouvoir vérifier et
+appliquer les updates autour du lancement de l'app :
+
+```ts
+import { CapacitorUpdater } from "@capgo/capacitor-updater";
+
+CapacitorUpdater.notifyAppReady();
+```
+
+`notifyAppReady()` dit à Capgo que le bundle actuel a démarré sans
+problème — l'oublier, et Capgo considère l'update comme échouée et fait un
+rollback au lancement suivant. Ce rollback est le vrai filet de sécurité :
+un mauvais bundle ne casse pas l'app, il revient juste en arrière.
+
+## Déployer une update
+
+```bash
+npm run build
+npx cap sync
+npx @capgo/cli bundle upload --channel production
+```
+
+Capgo upload le bundle web buildé, le versionne, et le rend disponible sur
+le channel configuré. Les clients déjà sur `production` la récupèrent à
+leur prochain check-in — typiquement au lancement de l'app ou à la reprise
+depuis l'arrière-plan, configurable dans les options du plugin.
+
+## Channels et rollout
+
+Capgo supporte des channels (`production`, `beta`, ...) et un rollout en
+pourcentage à l'intérieur d'un channel, donc une release n'a pas besoin de
+partir à 100% des utilisateurs d'un coup. Pousser un bundle sur un channel
+`beta` d'abord, surveiller les crash reports ou comportements bizarres,
+puis le promouvoir vers `production` — ou rollout à 10% avant 100% —
+rattrape un mauvais build avant que ça devienne le problème de tout le
+monde, avec le même filet de rollback en dessous si ça passe quand même.
+
+## Le vrai gain
+
+La plupart de ce qui casse dans une app mobile en prod — une faute de
+frappe, un appel API cassé après un changement backend, un glitch de
+layout sur une taille d'écran — c'est un fix JS/web. Pouvoir pousser ce
+fix et l'avoir en ligne chez les utilisateurs en quelques minutes, plutôt
+que d'attendre la review du store, c'est tout l'intérêt ; la coquille
+native reste stable et a rarement besoin de bouger.

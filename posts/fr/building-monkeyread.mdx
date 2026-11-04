@@ -15,6 +15,18 @@ directement de monkeytype.
 
 ![démo monkeyread](/blog/monkeyread-demo.gif)
 
+> **Repo :** [damien-mathieu1/monkeyread](https://github.com/damien-mathieu1/monkeyread) — un star si vous lisez plus vite maintenant.
+
+```mermaid
+flowchart LR
+    F["PDF / EPUB / TXT"] --> P["parse côté navigateur<br/>(pdf.js, JSZip)"]
+    P --> DB[("IndexedDB<br/>texte + position")]
+    DB --> R["moteur RSVP<br/>lettre pivot, vitesse, focus"]
+```
+
+Parsing et stockage restent dans le navigateur — rien de ce que vous
+importez ou lisez ne quitte l'onglet.
+
 ## Ce qu'il fait
 
 - Lecture RSVP : un mot (ou jusqu'à trois) à la fois, lettre pivot alignée
